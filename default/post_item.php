@@ -20,11 +20,11 @@
             <?php endif ?>
             <span class="post-detail">
 				<span class="fa fa-user"></span>
-                <?= $model['last_name'] ?> <?= $model['surname'] ?>
+                <?= Html::a("{$model['last_name']} {$model['surname']}", ['/user/about', 'username' => $model['username']]) ?>
 			</span>
 			<span class="post-detail">
 				<span class="fa fa-calendar"></span>
-                <?= Yii::$app->date->pdate($model['create_time'], DATE_FROMAT) ?>
+                <?= Yii::$app->date->asDatetime($model['created_at']) ?>
 			</span>
 			<span class="post-detail">
 				<span class="fa fa-comment-o"></span>
