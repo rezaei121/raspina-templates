@@ -16,7 +16,7 @@ Raspina::title($post->title);
                 <a href="<?= $post->url() ?>"><?= $post->title ?></a>
             </div>
             <!-- -->
-            <?php if($postCategories): ?>
+            <?php if($postCategories = $post->categories()): ?>
                 <span class="post-detail">
 					<span class="fa fa-list"></span>
                     <?php foreach ($postCategories as $pc): ?>
@@ -52,14 +52,14 @@ Raspina::title($post->title);
                         'user' => $updaterAuthor
                     ]) ?></span>
                 <?php endif ?>
-<!--                --><?php //if($post['tags']): ?>
-<!--                <hr class="more-hr">-->
-<!--                <div class="post-tags"><span class="fa fa-tags"></span>-->
-<!--                    --><?php //foreach ($post['tags'] as $tag): ?>
-<!--                        <a href="--><?//= $this->params['url'] ?><!--site/index/tag/--><?//= $tag ?><!--">--><?//= $tag ?><!--</a><delimiter>،</delimiter>-->
-<!--                    --><?php //endforeach ?>
-<!--                </div>-->
-<!--                --><?php //endif ?>
+                <?php if($tags = $post->tags()): ?>
+                <hr class="more-hr">
+                <div class="post-tags"><span class="fa fa-tags"></span>
+                    <?php foreach ($tags as $tag): ?>
+                        <?= Html::a($tag, ['/site/index', 'tag' => $tag]) ?>,
+                    <?php endforeach ?>
+                </div>
+                <?php endif ?>
             </div>
         </div>
     </div>
@@ -71,7 +71,6 @@ Raspina::title($post->title);
                 <div class="post-title"><?= Raspina::t('Related'); ?></div>
                 <div class="post-text">
                     <!-- -->
-                    <?php var_dump($postRelated); exit(); ?>
                     <?php foreach ($postRelated as $related): ?>
                         <?= Html::a($related['title'],[0 => 'post/view','id' => $related['id'],'title' => $related['title']]) ?><br>
                     <?php endforeach ?>
@@ -82,18 +81,21 @@ Raspina::title($post->title);
     </div>
 <?php endif ?>
 
-<?php if($comments): ?>
+<?php if($comments = $post->comments()): ?>
 <div class="post-border shadow">
     <div class="panel panel-default post-panel">
         <div class="panel-body">
-            <div class="post-title">نظرات</div>
+            <div class="post-title"><?= Raspina::t('Comments') ?></div>
             <div class="post-text">
                 <!-- -->
-                    <?php foreach($comments as $c): ?>
-                        <div class="comment-title"><span><?= $c['name'] ?></span> در تاریخ <span><?= Raspina::date($c['created_by']) ?></span> نوشته: </div>
-                        <div class="comment-text"><?= nl2br($c['text']) ?></div>
-                        <?php if($c['reply_text']): ?>
-                            <div class="comment-reply"><span>پاسخ مدیر: </span><br> <?= nl2br($c['reply_text']) ?></div>
+                    <?php foreach($comments as $comment): ?>
+                        <div class="comment-title"><?= Raspina::t('{name} at {date} says:', [
+                                'name' => $comment->name,
+                                'date' => Raspina::date($comment->created_at)
+                            ]) ?></div>
+                        <div class="comment-text"><?= nl2br($comment->text) ?></div>
+                        <?php if($comment->reply_text): ?>
+                            <div class="comment-reply"><span><?= Raspina::t('reply {user}:', ['user' => $comment->createdBy->last_name]) ?></span><br> <?= nl2br($comment->reply_text) ?></div>
                         <?php endif ?>
                         <hr class="more-hr">
                     <?php endforeach ?>
@@ -108,16 +110,16 @@ Raspina::title($post->title);
 <div class="post-border shadow">
     <div class="panel panel-default post-panel">
         <div class="panel-body">
-            <div class="post-title">ارسال نظر</div>
+            <div class="post-title"><?= Raspina::t('Leave a comments')?></div>
             <div class="post-text">
 <!-- -->
                 <?php $form = ActiveForm::begin() ?>
-                    <?= $form->field($commentModel,'name')->textInput(['maxlength' => true,'class' => 'input margin-17','placeholder' => 'نام']) ?>
-                    <?= $form->field($commentModel,'email')->textInput(['maxlength' => true,'class' => 'input margin-17','placeholder' => 'ایمیل','dir' => 'ltr']) ?>
-                    <?= $form->field($commentModel,'text')->textArea(['rows' => '6' ,'class' => 'input margin-17','placeholder' => 'متن...']) ?>
-                    <?= $form->field($commentModel,'captcha')->widget(Captcha::className(),['template' => '<div class="captcha-img">{image}</div><div class="captcha-txt">{input}</div>']) ?>
+                    <?= $form->field($commentModel,'name')->textInput(['maxlength' => true,'class' => 'input margin-17','placeholder' => Raspina::t('Name')]) ?>
+                    <?= $form->field($commentModel,'email')->textInput(['maxlength' => true,'class' => 'input margin-17','placeholder' => Raspina::t('Email'),'dir' => 'ltr']) ?>
+                    <?= $form->field($commentModel,'text')->textArea(['rows' => '6' ,'class' => 'input margin-17','placeholder' => Raspina::t('Comment')]) ?>
+                    <?= $form->field($commentModel,'captcha')->widget(Captcha::className()) ?>
 
-                    <?= Html::submitButton('ارسال نظر',['class' => 'submit']) ?>
+                    <?= Html::submitButton(Raspina::t('Send'),['class' => 'submit']) ?>
                 <?php ActiveForm::end() ?>
 <!-- -->
             </div>
